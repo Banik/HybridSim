@@ -44,7 +44,7 @@ public class Statistics {
 		
 	}
 	
-	protected double computeSocialTie(int client1Id, int client2Id) {
+	public double computeSocialTie(int client1Id, int client2Id) {
 		
 		double socialTie = 0.0001;
 		if (this.location.getClientById(client1Id) == null || this.location.getClientById(client2Id) == null) {
@@ -97,6 +97,16 @@ public class Statistics {
 	public void debug(String string) {
 		if (HybridSim.DEBUG) {
 			System.out.println("Statistics: "+string+"\n");
+		}
+	}
+	
+	public void buildSocialTieCache(List<Client> clientIds) {
+		if (!HybridSim.BUILD_SOCIAL_TIE_CACHE) return;
+		
+		for(int i=0; i<clientIds.size()-1; i++) {
+			for (int j=i+1; j<clientIds.size(); j++) {
+				this.computeSocialTie(clientIds.get(i).getId(), clientIds.get(j).getId());
+			}
 		}
 	}
 	

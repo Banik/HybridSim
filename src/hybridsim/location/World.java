@@ -46,7 +46,7 @@ public class World {
 		return clientLocations;
 	}
 	
-	public void debug() {
+	public void dump() {
 		if (!HybridSim.DEBUG) return;
 		
 		for (Location location : this.locations.values()) {

@@ -87,6 +87,10 @@ public class Client {
 		return this.intervals;
 	}
 	
+	public int getId() {
+		return this.getId();
+	}
+	
 	private boolean isIntersection(Pair<Long,Long> interval1, Pair<Long,Long> interval2) {
 		
 		if (interval1.getSecond() > interval2.getFirst() ) {
@@ -158,6 +162,10 @@ public class Client {
 		System.out.println("Client: "+this.clientId+", intervals:\n");
 		for (int i = 0; i < this.intervals.size(); i++ ) {
 			System.out.println(i+". "+this.intervals.get(i).getFirst()+" - "+this.intervals.get(i).getSecond()+";\n");
+		}
+		System.out.println("Client: "+this.clientId+", socialTies:\n");
+		for (int key : this.socialTies.keySet()) {
+			System.out.println(">>Location: "+this.myLocation.getId()+" Client:"+key+" = "+this.socialTies.get(key)+";\n");
 		}
 	}
 }

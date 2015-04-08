@@ -2,6 +2,7 @@ package hybridsim.location;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,6 +55,8 @@ public class Location {
 		for (Client client : this.clients.values()) {
 			client.createIntervals();
 		}
+		
+		this.stats.buildSocialTieCache(new ArrayList<Client>(this.clients.values()));
 	}
 	
 	public Client getClientById(int id) {

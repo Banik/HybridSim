@@ -12,6 +12,7 @@ import mobemu.node.Node;
 public class HybridSim extends SPRINT {
 	
 	public final static boolean DEBUG = true;
+	public final static boolean BUILD_SOCIAL_TIE_CACHE = true;
 	
 	
 	protected List<Location> myLocations = null;

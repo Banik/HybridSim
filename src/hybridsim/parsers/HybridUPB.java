@@ -65,7 +65,7 @@ public class HybridUPB extends UPB implements ILocationFile {
                 }
                 
                 this.world.syncData();
-                this.world.debug();
+                this.world.dump();
             }
         } catch (IOException | NumberFormatException e) {
             System.err.println("HybridUPB Parser exception: " + e.getMessage());
