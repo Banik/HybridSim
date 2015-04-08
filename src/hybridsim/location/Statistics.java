@@ -110,9 +110,5 @@ public class Statistics {
 		}
 	}
 	
-	public void dump() {
-		//TODO: create a dump of the social ties
-	}
-	
 
 }
