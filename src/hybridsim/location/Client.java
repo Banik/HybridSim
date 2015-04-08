@@ -46,19 +46,32 @@ public class Client {
 		this.currentInterval = new Pair<Long,Long>();
 		this.rawTime.sort(new TimeStampComparator());
 		
-		for (int i = 0; i<this.rawTime.size()-1; i++) {
-			if (this.currentInterval.getFirst() == null) {
+		this.currentInterval.setFirst(this.rawTime.get(0));
+		for (int i=1 ; i<this.rawTime.size() ; i++) {
+			long maxIntervalMills = this.rawTime.get(i-1) + TIME_GAP_SECONDS*1000;
+			if (maxIntervalMills > this.rawTime.get(i)) {
+				this.currentInterval.setSecond(this.rawTime.get(i));
+				continue;
+			} else {
+				this.currentInterval.setSecond(maxIntervalMills);
+				if (this.currentInterval.getFirst() != this.rawTime.get(i-1)) {
+					this.currentInterval.setSecond(this.rawTime.get(i-1));
+				}
+				
+				this.addInterval();
 				this.currentInterval.setFirst(this.rawTime.get(i));
-				continue;
 			}
-			
-			long maxIntervalMills = this.currentInterval.getFirst() + TIME_GAP_SECONDS*1000;
-			
-			if (maxIntervalMills > this.rawTime.get(i+1)) {
-				continue;
-			}
-			
-			this.currentInterval.setSecond(this.rawTime.get(i));
+		}
+		
+		/**
+		 * Ads the last interval
+		 */
+		if (this.currentInterval.isFull()) {
+			this.addInterval();
+		}
+
+		if (this.currentInterval.getFirst() != null && this.currentInterval.getSecond() == null) {
+			this.currentInterval.setSecond(this.currentInterval.getFirst() + TIME_GAP_SECONDS*1000);
 			this.addInterval();
 		}
 	}

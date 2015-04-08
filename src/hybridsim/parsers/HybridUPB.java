@@ -27,12 +27,12 @@ interface ILocationFile {
 
 public class HybridUPB extends UPB implements ILocationFile {
 	
-	protected World world;
+	protected World world = null;
 	
 	public HybridUPB(UpbTrace subtrace) {
 		super(subtrace);
-		
 		this.world = new World();
+		this.parseLocations();
 	}
 	
 	@Override
@@ -49,7 +49,13 @@ public class HybridUPB extends UPB implements ILocationFile {
             try (DataInputStream in = new DataInputStream(fstream)) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
+                int nrLinesRead = 0;
                 while ((line = br.readLine()) != null) {
+                	
+                	if (nrLinesRead == 0) {
+                		nrLinesRead++;
+                		continue; // jump over the header
+                	}
 
                     String[] tokens;
                     String delimiter = ",";
@@ -60,9 +66,11 @@ public class HybridUPB extends UPB implements ILocationFile {
                     int clientId = Integer.parseInt(tokens[FILE_COLUMN_CLIENT_ID]) - 1;
                     
                     this.populateWorld(locationName, clientId, seenDate);
+                    nrLinesRead ++;
                 }
                 
                 this.world.syncData();
+                this.world.debug();
             }
         } catch (IOException | NumberFormatException e) {
             System.err.println("HybridUPB Parser exception: " + e.getMessage());

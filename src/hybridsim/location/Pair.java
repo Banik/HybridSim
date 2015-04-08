@@ -38,4 +38,8 @@ public class Pair<T1, T2> {
 		return this;
 	}
 	
+	public boolean isFull() {
+		return (this.a != null && this.b != null);
+	}
+	
 }
