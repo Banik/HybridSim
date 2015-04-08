@@ -2,7 +2,9 @@ package hybridsim.location;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class TimeStampComparator implements Comparator<Long> {
     @Override
@@ -20,13 +22,18 @@ public class Client {
 	private List<Long> rawTime;
 	private List<Pair<Long,Long>> intervals;
 	private Pair<Long,Long> currentInterval;
+	private Location myLocation;
+	private Map<Integer, Double> socialTies;
 	
 	
-	public Client(int clientId) {
+	
+	public Client(int clientId, Location location) {
 		this.clientId = clientId;
 		this.rawTime = new ArrayList<Long>();
 		this.intervals = new ArrayList<Pair<Long,Long>>();
 		this.currentInterval = new Pair<Long,Long>();
+		this.myLocation = location;
+		this.socialTies = new HashMap<Integer, Double>();
 	}
 	
 	/**
@@ -76,7 +83,78 @@ public class Client {
 		}
 	}
 	
-	public void debug() {
+	public List<Pair<Long,Long>> getIntervals() {
+		return this.intervals;
+	}
+	
+	private boolean isIntersection(Pair<Long,Long> interval1, Pair<Long,Long> interval2) {
+		
+		if (interval1.getSecond() > interval2.getFirst() ) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean intersectedInterval(Pair<Long, Long> interval) {
+		for (int i=0; i<this.intervals.size(); i++) {
+			if (this.isIntersection(interval, this.intervals.get(i))) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	/** Social tie functions. 
+	 * These functions will help store the social ties between the current client and another within a location;
+	 * **/
+	
+	/**
+	 * Adds a new social tie for the current client
+	 * @param clientId
+	 * @param socialTie
+	 */
+	public void addSocialTie(int clientId, double socialTie) {
+		
+		if (this.socialTies.containsKey(clientId) && this.socialTies.get(clientId) > socialTie) {
+			return;
+		}
+		
+		this.socialTies.put(clientId, socialTie);
+	}
+	
+	/**
+	 * Retrieves a social tie of the current client for a given clientId
+	 * @param clientId
+	 * @return
+	 */
+	public double getSocialTieForClient(int clientId) {
+		if (this.socialTies.containsKey(clientId)) {
+			return this.socialTies.get(clientId);
+		}
+		
+		return 0;
+	}
+	
+	/**
+	 * Increases the social tie of a client with a given increase number
+	 * @param clientId
+	 * @param increase
+	 * @return the new socialTie value after the increase was made
+	 */
+	public double increaseSocialTie(int clientId, double increase) {
+		if (this.socialTies.containsKey(clientId)) {
+			this.socialTies.put(clientId, this.socialTies.get(clientId)+increase);
+		}
+		
+		return this.socialTies.get(clientId);
+	}
+	
+	/***************/
+	
+	public void dump() {
 		System.out.println("Client: "+this.clientId+", intervals:\n");
 		for (int i = 0; i < this.intervals.size(); i++ ) {
 			System.out.println(i+". "+this.intervals.get(i).getFirst()+" - "+this.intervals.get(i).getSecond()+";\n");

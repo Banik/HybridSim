@@ -34,7 +34,7 @@ public class Location {
 	public void addClient(int clientId, String seenDate) {
 
 		if (!this.clients.containsKey(clientId)) {
-			this.clients.put(clientId, new Client(clientId));
+			this.clients.put(clientId, new Client(clientId, this));
 		}
 		
 		try {
@@ -56,12 +56,28 @@ public class Location {
 		}
 	}
 	
-	public void debug() {
+	public Client getClientById(int id) {
+		
+		if (this.clients.containsKey(id)) {
+			return this.clients.get(id);
+		}
+		
+		return null; 
+	}
+	
+	public int getId() {
+		return this.ID;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public void dump() {
 		System.out.println("Location: "+this.ID+", "+this.name+"\n--\nStats:\n");
-		this.stats.debug();
 		System.out.println("\n---\nClients:\n");
 		for (Client client : this.clients.values()) {
-			client.debug();
+			client.dump();
 		}
 		System.out.println("\n--------------\n\n");
 	}

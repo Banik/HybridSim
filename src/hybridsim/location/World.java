@@ -1,10 +1,13 @@
 package hybridsim.location;
 
+import hybridsim.HybridSim;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class World {
-	final boolean DEBUG = true;
 	protected Map<String, Location> locations = null;
 	protected int nrLocations = 0;
 
@@ -32,11 +35,22 @@ public class World {
 		}
 	}
 	
+	public List<Location> getLocationsForClientId(int id) {
+		List<Location> clientLocations = new ArrayList<Location>();
+		for (Location loc : this.locations.values()) {
+			if (loc.getClientById(id) != null) {
+				clientLocations.add(loc);
+			}
+		}
+		
+		return clientLocations;
+	}
+	
 	public void debug() {
-		if (!DEBUG) return;
+		if (!HybridSim.DEBUG) return;
 		
 		for (Location location : this.locations.values()) {
-			location.debug();
+			location.dump();
 		}
 	}
 

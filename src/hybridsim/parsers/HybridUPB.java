@@ -35,11 +35,6 @@ public class HybridUPB extends UPB implements ILocationFile {
 		this.parseLocations();
 	}
 	
-	@Override
-	protected void parseUpb2012(String contacts, String social, String interests) {
-		super.parseUpb2012(contacts, social, interests);
-	}
-	
 	
 	protected void parseLocations() {
 		// parse proximity file.
@@ -85,6 +80,10 @@ public class HybridUPB extends UPB implements ILocationFile {
 		
 		location = this.world.getLocation(locationName);
         location.addClient(clientId, seenDate);
+	}
+	
+	public World getWorld() {
+		return this.world;
 	}
 
 }
