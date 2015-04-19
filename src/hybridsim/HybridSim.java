@@ -57,7 +57,12 @@ public class HybridSim extends SPRINT {
 		}
 		
 		try {
-			HybridSim.logWriter.write(className+" : "+message);
+			if(className.length() == 0) {
+				HybridSim.logWriter.write(message);
+			} else {
+				HybridSim.logWriter.write(className+" : "+message);
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

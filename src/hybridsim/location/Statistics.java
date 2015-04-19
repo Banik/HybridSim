@@ -9,6 +9,7 @@ public class Statistics {
 	
 	protected Location location;
 	
+	protected final int ONE_HOUR_INTERVAL_MILLS = 1000 * 60 * 60;
 	protected final int TWO_HOUR_INTERVAL_MILLS = 1000 * 60 * 60 * 2;
 	protected final int ONE_DAY_INTERVAL_MILLS = 1000 * 60 * 60 * 24;
 	protected final int POPULARITY_THRESHOLD = 30;
@@ -25,24 +26,24 @@ public class Statistics {
 	}
 	
 	/**
-	 * Computes a future interval and checks against the two clients so 
-	 * that we could see if they have a regular meeting in the current location
-	 * 
-	 * @param Client client1
-	 * @param Client client2
-	 * @param Pair initialInterval
-	 * @param increase - the amount in milliseconds in which the initial interval will be increased
-	 * @return int
+	 * Method that computes the end time of the intersection between the two given clients intervals and calculates the future
+	 * interval so that it returns the number of contacts between the two clients
+	 * @param client1
+	 * @param client2
+	 * @param client1Interval
+	 * @param client2Interval
+	 * @param increase - the increase
+	 * @return the number of contacts in the future interval
 	 */
 	private int checkInterval(Client client1, Client client2, Pair<Long, Long> client1Interval, Pair<Long, Long> client2Interval, int increase) {
 		long endContactTime = client2Interval.getSecond();
-		if(endContactTime < client1Interval.getSecond()) {
+		if(endContactTime > client1Interval.getSecond()) {
 			endContactTime = client1Interval.getSecond();
-		}
+		} 
 		int contactTimes = 0;
 		
 		
-		
+		 
 		Pair<Long, Long> futureInterval = new Pair<Long,Long>(
 				endContactTime, 
 				endContactTime+increase);
@@ -56,6 +57,12 @@ public class Statistics {
 		
 	}
 	
+	/**
+	 * This method will compute the social tie for a location between two clients.
+	 * @param client1Id
+	 * @param client2Id
+	 * @return the calculated social tie
+	 */
 	public double computeSocialTie(int client1Id, int client2Id) {
 		
 		double socialTie = 0.0001;
@@ -77,24 +84,35 @@ public class Statistics {
 		}
 		
 		List<Pair<Long, Long>> intervalsC1 = client1.getIntervals();
-		int nrOfContacts2Hours = 0;
-		int nrOfContacts1Day = 0;
+		int totalNrOfContactsHours = 0;
+		int totalNrOfContacts1Day = 0;
 		
 		for (int i=0; i<intervalsC1.size(); i++) {
 			List<Pair<Long,Long>> foundContacts = client2.intersectedInterval(intervalsC1.get(i)); 
-			if (!foundContacts.isEmpty()) {
-				nrOfContacts2Hours += this.checkInterval(client1, client2, intervalsC1.get(i), foundContacts.get(0), TWO_HOUR_INTERVAL_MILLS);
-				if (nrOfContacts2Hours == 0) {
-					nrOfContacts1Day += this.checkInterval(client1, client2, intervalsC1.get(i), foundContacts.get(0), ONE_DAY_INTERVAL_MILLS);
+			if (!foundContacts.isEmpty()) {	
+				// -1 because it counts the initial contact as well
+				int nrOfContactsHours = this.checkInterval(client1, client2, intervalsC1.get(i), foundContacts.get(0), 4 * ONE_HOUR_INTERVAL_MILLS);
+				int	nrOfContacts1Day = this.checkInterval(client1, client2, intervalsC1.get(i), foundContacts.get(0), ONE_DAY_INTERVAL_MILLS);
+				
+				/**
+				 * TODO: maybe change the logic and remove hard-codings
+				 * Computes the weight of the 4hour contacts vs the 24 hour contacts
+				 */
+				if (nrOfContacts1Day > 0 && nrOfContactsHours > 0 ) {
+					if (nrOfContactsHours / 4 > nrOfContacts1Day / 24) {
+						totalNrOfContactsHours++;
+					} else {
+						totalNrOfContacts1Day++;
+					}
 				}
 			}
 		}
 		
 		if (this.location.getPopularity() <= POPULARITY_THRESHOLD) {
-			if (nrOfContacts2Hours > nrOfContacts1Day) {
+			socialTie = 0.08;
+			if (totalNrOfContactsHours > totalNrOfContacts1Day) {
 				socialTie = 0.15;
 			}
-			socialTie = 0.08;
 		}
 		
 		client1.addSocialTie(client2Id, socialTie);
