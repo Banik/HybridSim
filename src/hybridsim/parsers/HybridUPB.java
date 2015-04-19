@@ -1,5 +1,6 @@
 package hybridsim.parsers;
 
+import hybridsim.HybridSim;
 import hybridsim.location.Location;
 import hybridsim.location.World;
 
@@ -33,6 +34,8 @@ public class HybridUPB extends UPB implements ILocationFile {
 		super(subtrace);
 		this.world = new World();
 		this.parseLocations();
+		this.world.increaseSocialTieWithinSameCommunities(this.getSocialNetwork(), this.getNodesNumber());
+		this.world.dump();
 	}
 	
 	
@@ -65,7 +68,6 @@ public class HybridUPB extends UPB implements ILocationFile {
                 }
                 
                 this.world.syncData();
-                this.world.dump();
             }
         } catch (IOException | NumberFormatException e) {
             System.err.println("HybridUPB Parser exception: " + e.getMessage());
@@ -81,6 +83,7 @@ public class HybridUPB extends UPB implements ILocationFile {
 		location = this.world.getLocation(locationName);
         location.addClient(clientId, seenDate);
 	}
+	
 	
 	public World getWorld() {
 		return this.world;

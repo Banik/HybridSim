@@ -32,15 +32,27 @@ public class Statistics {
 	 * @param Client client2
 	 * @param Pair initialInterval
 	 * @param increase - the amount in milliseconds in which the initial interval will be increased
-	 * @return boolean
+	 * @return int
 	 */
-	private boolean checkInterval(Client client1, Client client2, Pair<Long, Long> initialInterval, int increase) {
+	private int checkInterval(Client client1, Client client2, Pair<Long, Long> client1Interval, Pair<Long, Long> client2Interval, int increase) {
+		long endContactTime = client2Interval.getSecond();
+		if(endContactTime < client1Interval.getSecond()) {
+			endContactTime = client1Interval.getSecond();
+		}
+		int contactTimes = 0;
+		
+		
 		
 		Pair<Long, Long> futureInterval = new Pair<Long,Long>(
-				initialInterval.getFirst()+increase, 
-				initialInterval.getSecond()+increase);
+				endContactTime, 
+				endContactTime+increase);
 		
-		return client1.intersectedInterval(futureInterval) && client2.intersectedInterval(futureInterval);
+		List<Pair<Long, Long>> futureIntervalIntersections  = client1.intersectedInterval(futureInterval);
+		for (Pair<Long, Long> futureIntersection : futureIntervalIntersections) {
+			contactTimes += client2.intersectedInterval(futureIntersection).size();
+		}
+		
+		return contactTimes;
 		
 	}
 	
@@ -48,7 +60,7 @@ public class Statistics {
 		
 		double socialTie = 0.0001;
 		if (this.location.getClientById(client1Id) == null || this.location.getClientById(client2Id) == null) {
-			this.debug("Both clients do not exist "+client1Id+" - "+client2Id+" in location: "+this.location.getId());
+			HybridSim.debug("Statistics","Both clients do not exist "+client1Id+" - "+client2Id+" in location: "+this.location.getId());
 			return 0;
 		}
 		
@@ -57,7 +69,7 @@ public class Statistics {
 		
 		/**
 		 * If the social tie was already computed for the given clients
-		 * get the store value
+		 * get the stored value
 		 * Increases performance
 		 */
 		if (client1.getSocialTieForClient(client2Id) != 0) {
@@ -69,12 +81,11 @@ public class Statistics {
 		int nrOfContacts1Day = 0;
 		
 		for (int i=0; i<intervalsC1.size(); i++) {
-			if (client2.intersectedInterval(intervalsC1.get(i))) {
-				if (this.checkInterval(client1, client2, intervalsC1.get(i), TWO_HOUR_INTERVAL_MILLS)) {
-					nrOfContacts2Hours++;
-				}
-				if (this.checkInterval(client1, client2, intervalsC1.get(i), ONE_DAY_INTERVAL_MILLS)) {
-					nrOfContacts1Day++;
+			List<Pair<Long,Long>> foundContacts = client2.intersectedInterval(intervalsC1.get(i)); 
+			if (!foundContacts.isEmpty()) {
+				nrOfContacts2Hours += this.checkInterval(client1, client2, intervalsC1.get(i), foundContacts.get(0), TWO_HOUR_INTERVAL_MILLS);
+				if (nrOfContacts2Hours == 0) {
+					nrOfContacts1Day += this.checkInterval(client1, client2, intervalsC1.get(i), foundContacts.get(0), ONE_DAY_INTERVAL_MILLS);
 				}
 			}
 		}
@@ -89,15 +100,9 @@ public class Statistics {
 		client1.addSocialTie(client2Id, socialTie);
 		client2.addSocialTie(client1Id, socialTie);
 		
-		this.debug("Social tie for "+client1Id+" and "+client2Id+" was created in location "+this.location.getId()+" with value of "+socialTie);
+		//HybridSim.debug("Statistics","Social tie for "+client1Id+" and "+client2Id+" was created in location "+this.location.getId()+" with value of "+socialTie+"\n");
 		
 		return socialTie;
-	}
-	
-	public void debug(String string) {
-		if (HybridSim.DEBUG) {
-			System.out.println("Statistics: "+string+"\n");
-		}
 	}
 	
 	public void buildSocialTieCache(List<Client> clientIds) {

@@ -1,5 +1,7 @@
 package hybridsim.location;
 
+import hybridsim.HybridSim;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -77,12 +79,12 @@ public class Location {
 	}
 	
 	public void dump() {
-		System.out.println("Location: "+this.ID+", "+this.name+"\n--\nStats:\n");
-		System.out.println("\n---\nClients:\n");
+		HybridSim.debug("Location", this.ID+", "+this.name+"\n--\nStats:\n");
+		HybridSim.debug("", "\n---\nClients:\n");
 		for (Client client : this.clients.values()) {
 			client.dump();
 		}
-		System.out.println("\n--------------\n\n");
+		HybridSim.debug("","\n--------------\n\n");
 	}
 
 

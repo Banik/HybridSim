@@ -1,5 +1,7 @@
 package hybridsim.location;
 
+import hybridsim.HybridSim;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -59,7 +61,7 @@ public class Client {
 			if (maxIntervalMills > this.rawTime.get(i)) {
 				this.currentInterval.setSecond(this.rawTime.get(i));
 				continue;
-			} else {
+			} else {				
 				this.currentInterval.setSecond(maxIntervalMills);
 				if (this.currentInterval.getFirst() != this.rawTime.get(i-1)) {
 					this.currentInterval.setSecond(this.rawTime.get(i-1));
@@ -88,26 +90,32 @@ public class Client {
 	}
 	
 	public int getId() {
-		return this.getId();
+		return this.clientId;
 	}
 	
 	private boolean isIntersection(Pair<Long,Long> interval1, Pair<Long,Long> interval2) {
 		
-		if (interval1.getSecond() > interval2.getFirst() ) {
+		if (interval1.getSecond() > interval2.getFirst() && interval1.getFirst() < interval2.getSecond()) {
 			return true;
 		}
 		
 		return false;
 	}
 	
-	public boolean intersectedInterval(Pair<Long, Long> interval) {
+	/**
+	 * Returns the interval in which the intersection with the argument has been made
+	 * @param interval
+	 * @return Pair<Long,Long> | null
+	 */
+	public List<Pair<Long, Long>> intersectedInterval(Pair<Long, Long> interval) {
+		List<Pair<Long, Long>> found = new ArrayList<Pair<Long, Long>>();
 		for (int i=0; i<this.intervals.size(); i++) {
 			if (this.isIntersection(interval, this.intervals.get(i))) {
-				return true;
+				found.add(this.intervals.get(i));
 			}
 		}
 		
-		return false;
+		return found;
 	}
 	
 	
@@ -159,13 +167,13 @@ public class Client {
 	/***************/
 	
 	public void dump() {
-		System.out.println("Client: "+this.clientId+", intervals:\n");
+		HybridSim.debug("Client", this.clientId+", intervals:\n");
 		for (int i = 0; i < this.intervals.size(); i++ ) {
-			System.out.println(i+". "+this.intervals.get(i).getFirst()+" - "+this.intervals.get(i).getSecond()+";\n");
+			HybridSim.debug("", i+". "+this.intervals.get(i).getFirst()+" - "+this.intervals.get(i).getSecond()+";\n");
 		}
-		System.out.println("Client: "+this.clientId+", socialTies:\n");
+		HybridSim.debug("Client", this.clientId+", socialTies:\n");
 		for (int key : this.socialTies.keySet()) {
-			System.out.println(">>Location: "+this.myLocation.getId()+" Client:"+key+" = "+this.socialTies.get(key)+";\n");
+			HybridSim.debug(">>", "Location: "+this.myLocation.getId()+" Client:"+key+" = "+this.socialTies.get(key)+";\n");
 		}
 	}
 }
